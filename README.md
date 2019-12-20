@@ -6,7 +6,7 @@ It is just adopted from our [customization-change-locale](https://github.com/mic
 
 ```
         // createCognitiveServicesSpeechServicesPonyfillFactory const parameter is pulled from WebChat
-+        const { createDirectLine, createStore, ReactWebChat, createCognitiveServicesSpeechServicesPonyfillFactory } = window.WebChat;
+        const { createDirectLine, createStore, ReactWebChat, createCognitiveServicesSpeechServicesPonyfillFactory } = window.WebChat;
 
         const selectVoice = useMemo(() => (voices, activity) => {
             // if want to study voices/ activity values, uncomment the below
@@ -19,18 +19,18 @@ It is just adopted from our [customization-change-locale](https://github.com/mic
             **/
             if (activity.locale === 'zh-HK') {
                 console.log(`in if`);
-+                return voices.find(({ name }) => /TracyRUS/iu.test(name));
+                return voices.find(({ name }) => /TracyRUS/iu.test(name));
             } else {
                 // by-default it assumes the voice locale is 'en-US'
                 console.log(`in else`);
-+                return voices.find(({ name }) => /JessaRUS/iu.test(name));
+                return voices.find(({ name }) => /JessaRUS/iu.test(name));
             }
         });
 
         // Render Web Chat with the specific locale. 
         return <ReactWebChat directLine={directLine}
                       locale={locale}
-+                      selectVoice={selectVoice}
+                      selectVoice={selectVoice}
                       store={store}
                       webSpeechPonyfillFactory={webSpeechPonyfillFactory} />;
 ```
