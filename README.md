@@ -4,6 +4,7 @@ It is just adopted from our [customization-change-locale](https://github.com/mic
 
 ## Select Voice
 
+```
         // createCognitiveServicesSpeechServicesPonyfillFactory const parameter is pulled from WebChat
 +        const { createDirectLine, createStore, ReactWebChat, createCognitiveServicesSpeechServicesPonyfillFactory } = window.WebChat;
 
@@ -26,11 +27,11 @@ It is just adopted from our [customization-change-locale](https://github.com/mic
             }
         });
 
-        // Render Web Chat with the specific locale.               
-        
+        // Render Web Chat with the specific locale. 
         return <ReactWebChat directLine={directLine}
                       locale={locale}
 +                      selectVoice={selectVoice}
                       store={store}
                       webSpeechPonyfillFactory={webSpeechPonyfillFactory} />;
+```
 
