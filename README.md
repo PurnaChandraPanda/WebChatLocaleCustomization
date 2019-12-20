@@ -2,8 +2,9 @@
 
 It is just adopted from our [customization-change-locale](https://github.com/microsoft/BotFramework-WebChat/tree/master/samples/22.customization-change-locale) sample application.
 
-# Select Voice
+## Select Voice
 
+        // createCognitiveServicesSpeechServicesPonyfillFactory const parameter is pulled from WebChat
 +        const { createDirectLine, createStore, ReactWebChat, createCognitiveServicesSpeechServicesPonyfillFactory } = window.WebChat;
 
         const selectVoice = useMemo(() => (voices, activity) => {
