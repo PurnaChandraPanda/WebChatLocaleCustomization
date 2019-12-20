@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <title>Web Chat: Change locale</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--
+      For simplicity and code clarity, we are using Babel and React from unpkg.com.
+    -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/react@16.8.6/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16.8.6/umd/react-dom.development.js"></script>
+    <!--
+      This CDN points to the latest official release of Web Chat. If you need to test against Web Chat's latest bits, please refer to pointing to Web Chat's MyGet feed:
+      https://github.com/microsoft/BotFramework-WebChat#how-to-test-with-web-chats-latest-bits
+    -->
+    <script src="https://cdn.botframework.com/botframework-webchat/latest/webchat.js"></script>
+    <style>
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+        }
+
+        #webchat {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="webchat" role="main"></div>
+    <script type="text/babel">
+        (async function() {
+        'use strict';
+
+        // read token for DL channel service
+        const res = await fetch('https://serviceapp123.azurewebsites.net/directline/echotoken', { method: 'POST' });
+        const { token } = await res.json();
+
+        // read token for Azure Speech service
+        const speechRes = await fetch('https://serviceapp123.azurewebsites.net/directline/speechtoken', { method: 'POST' });
+        const { speechToken, speechRegion } = await speechRes.json();
+
+        // react related variables are set for webchat
+        const { useMemo, useState } = window.React;
+        const { createDirectLine, createStore, ReactWebChat, createCognitiveServicesSpeechServicesPonyfillFactory } = window.WebChat;
+
+        // Create a new React component called App.
+        const App = () => {
+            // Create a state called "locale".
+            const [locale, setLocale] = useState(navigator.language);
+
+            // Create and memoize the DirectLineJS object.
+            const directLine = useMemo(() => createDirectLine({ token }), []);
+
+            // Create and memoize speech servic response
+            const webSpeechPonyfillFactory = useMemo(() => createCognitiveServicesSpeechServicesPonyfillFactory({
+                authorizationToken: speechToken,
+                region: speechRegion
+            }), []);
+
+        const selectVoice = useMemo(() => (voices, activity) => {
+
+            // if want to study voices/ activity values, uncomment the below
+            //console.log(`voices - before if - ${JSON.stringify(voices)}`);
+            //console.log(`activity - before if - ${JSON.stringify(activity)}`);
+
+            /*
+            // activity.locale can contain value only if bot service Activity have set in response
+            // out here, logic could be read locale from client on the bot service level/ respond with Activity object via same locale
+            // voice value can be set as per - https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support#standard-voices
+            **/
+            if (activity.locale === 'zh-HK') {
+                console.log(`in if`);
+                return voices.find(({ name }) => /TracyRUS/iu.test(name));
+            } else {
+                // by-default it assumes the voice locale is 'en-US'
+                console.log(`in else`);
+                return voices.find(({ name }) => /JessaRUS/iu.test(name));
+            }
+        });
+
+        // Create and memoize a store that intercepts incoming activity.
+        const store = useMemo(
+            () =>
+                createStore({}, () => next => action => {
+                if (action.type === 'DIRECT_LINE/INCOMING_ACTIVITY') {
+                const {
+                    activity: {
+                        from: { role },
+                        text,
+                        type
+                    }
+                } = action.payload;
+                console.log(`before if - ${type} - ${text}`);
+
+                    /*
+                    // If the message activity is from bot and contains one of the language, set the locale according to the text content.
+                    // Uncomment role check if want to read text response from bot and message contains such text, just set the locale accordingly.
+                    **/
+                    if (
+                    //role === 'bot' &&
+                    type === 'message' &&
+                    (text === 'en-US' || text === 'ja-JP' || text === 'zh-HK')
+                    ) {
+                        setLocale(text);
+                    }
+                }
+                return next(action);
+            }),
+            []
+        );
+
+        // Render Web Chat with the specific locale.        
+        //return <ReactWebChat directLine={directLine} locale={locale} store={store} webSpeechPonyfillFactory={webSpeechPonyfillFactory} />;
+        
+        return <ReactWebChat directLine={directLine}
+                      locale={locale}
+                      selectVoice={selectVoice}
+                      store={store}
+                      webSpeechPonyfillFactory={webSpeechPonyfillFactory} />;
+        };
+
+        // Render the App component.
+        window.ReactDOM.render(<App />, document.getElementById('webchat'));
+        document.querySelector('#webchat > *').focus();
+        })().catch(err => console.error(err));
+    </script>
+</body>
+</html>
