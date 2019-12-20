@@ -35,3 +35,11 @@ It is just adopted from our [customization-change-locale](https://github.com/mic
                       webSpeechPonyfillFactory={webSpeechPonyfillFactory} />;
 ```
 
+## Deploy
+
+The html file is kept in `wwwroot`. So, it can be published to Azure App Service. Otherwise, this can be kept in a CDN server like a static file.
+
+## Note
+
+This sample covers both the aspect of Text and Voice locale change.
+
